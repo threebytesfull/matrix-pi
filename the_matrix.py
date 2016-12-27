@@ -94,6 +94,42 @@ class TheMatrix():
         )
         self._writeCommand(self._register.control, self._control.picture, data)
 
+    def displayMovie(self, frame=0, start=1, blink=0):
+        """Display movie"""
+        assert(frame <= 35)
+        data = (
+            (blink & 1) << 7 |
+            (start & 1) << 6 |
+            (frame & 63)
+        )
+        self._writeCommand(self._register.control, self._control.movie, data)
+
+    def setMovieMode(self, frames=1, blink=0, end_last=1):
+        """Set movie play options"""
+        assert(frames >= 1 and frames <= 36)
+        data = (
+            (blink & 1) << 7 |
+            (end_last & 1) << 6 |
+            (frames - 1) & 63
+        )
+        self._writeCommand(self._register.control, self._control.movie_mode, data)
+
+    def setFrameTime(self, delay=1):
+        """Set movie frame time in units of 32.5ms"""
+        assert(delay >= 0 and delay <= 15)
+        frame_fad = 0
+        scroll_dir = 1
+        block_size = 1
+        enable_scrolling = 0
+        data = (
+            (frame_fad & 1) << 7 |
+            (scroll_dir & 1) << 6 |
+            (block_size & 1) << 5 |
+            (enable_scrolling & 1) << 4 |
+            (delay & 15)
+        )
+        self._writeCommand(self._register.control, self._control.frame_time, data)
+
     def display(self, on=1):
         """Set display on/off"""
         test_all = 0
