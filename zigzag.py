@@ -2,8 +2,6 @@
 
 from the_matrix import TheMatrix
 
-import time
-
 def zigzag_frame(offset=0):
     y = 0
     inc = 1
@@ -25,7 +23,7 @@ blinkPWMFrame = TheMatrix.BlinkPWMFrame()
 matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
 
 for frame_num in range(8):
-    matrix.writeOnOffFrame(frame_num, zigzag_frame(frame_num))
+    matrix.writeOnOffFrame(frame_num, zigzag_frame(8-frame_num))
 
 matrix.setDisplayOptions(loops=7)
 matrix.display(1)
