@@ -56,13 +56,20 @@ hard-coded at the top of the script.
 
 There's a script called `matrix_leds.py` which can set specified LEDs on
 individually - that may be useful for testing too. You can specify LEDs either
-by coordinates or by their logical number in hex:
+by coordinates or by their logical number in hex, or groups of LEDs by AS1130
+pin:
 
     # turn on three LEDs
     python matrix_leds.py 7 9 b0
 
     # turn on top left corner and top right corner LEDs
     python matrix_leds.py 0,0 23,0
+
+    # turn on all LEDs whose anode connects to CS2
+    python matrix_leds.py cs2
+
+    # turn on all LEDs whose cathode connects to CS10
+    python matrix_leds.py /CS10
 
 It can also show a map of the physical connections for each LED:
 
