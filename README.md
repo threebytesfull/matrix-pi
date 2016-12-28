@@ -40,6 +40,8 @@ responding and has the address you're expecting:
 By default, TheMatrix will have address 0x30 if you haven't added a resistor at
 R4 to specify otherwise.
 
+## [the_matrix.py](./the_matrix.py)
+
 If your address matches the default, you can just run the Python script
 directly:
 
@@ -52,7 +54,7 @@ but it's not complete or tested yet.
 If your board has a different address, you'll want to change the address
 hard-coded at the top of the script.
 
-## Extras
+## [matrix_leds.py](./matrix_leds.py)
 
 There's a script called `matrix_leds.py` which can set specified LEDs on
 individually - that may be useful for testing too. You can specify LEDs either
