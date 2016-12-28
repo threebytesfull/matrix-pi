@@ -4,7 +4,7 @@ from __future__ import print_function
 
 from the_matrix import TheMatrix
 
-import sys, getopt
+import getopt, re, sys
 
 # physical wiring
 cs_pairs = [(cathode, anode) for cathode in range(12) for anode in [a for a in range(12) if a != cathode][:10]]
@@ -60,11 +60,22 @@ def display_leds(leds):
         if len(coords) == 2:
             x, y = [int(n) for n in coords]
         else:
-            led = int(led, 16)
-            hi = int(led/16)
-            lo = led % 16
-            x = hi*2 + int(lo/5)
-            y = lo % 5
+            match = re.match('^(/?)cs(\d+)$', led, re.IGNORECASE)
+            if match:
+                low = match.group(1)
+                signal = int(match.group(2))
+                connected_pairs = [i for i in range(len(cs_pairs)) if cs_pairs[i][1 if low else 0] == signal]
+                for pair_index in connected_pairs:
+                    x = int(pair_index/5)
+                    y = pair_index % 5
+                    leds += ["%d,%d" % (x, y)]
+                continue
+            else:
+                led = int(led, 16)
+                hi = int(led/16)
+                lo = led % 16
+                x = hi*2 + int(lo/5)
+                y = lo % 5
         assert(x in range(24))
         assert(y in range(5))
         onOffFrame.setPixel(x, y)
