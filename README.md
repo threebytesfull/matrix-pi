@@ -51,3 +51,25 @@ but it's not complete or tested yet.
 
 If your board has a different address, you'll want to change the address
 hard-coded at the top of the script.
+
+## Extras
+
+There's a script called `matrix_leds.py` which can set specified LEDs on
+individually - that may be useful for testing too. You can specify LEDs either
+by coordinates or by their logical number in hex:
+
+    # turn on three LEDs
+    python matrix_leds.py 7 9 b0
+
+    # turn on top left corner and top right corner LEDs
+    python matrix_leds.py 0,0 23,0
+
+It can also show a map of the physical connections for each LED:
+
+    python matrix_leds.py -p
+
+and a logical map with the LED numbers in hex (the same numbers it expects on
+the command line):
+
+    python matrix_leds.py -l
+
