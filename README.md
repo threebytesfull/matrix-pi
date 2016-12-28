@@ -111,3 +111,20 @@ the command line):
     +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
     |  04 |  09 |  14 |  19 |  24 |  29 |  34 |  39 |  44 |  49 |  54 |  59 |  64 |  69 |  74 |  79 |  84 |  89 |  94 |  99 |  A4 |  A9 |  B4 |  B9 |
     +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
+
+## Web Interface - [web.py](./web.py)
+
+This is a very basic web interface for controlling TheMatrix. It runs on the
+Raspberry Pi and uses `the_matrix.py` described above. It needs Flask to run,
+which you can install with:
+
+    pip install flask
+
+(you may need to do that as root, depending on your system setup). To start the
+application, just run it:
+
+    python web.py
+
+and visit your Raspberry Pi's IP address or hostname on port 5000 in your
+browser. The application lets you control individual LEDS, rows and columns of
+them together and vary the LED current.

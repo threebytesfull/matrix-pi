@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Boldport - TheMatrix</title>
+        <style type="text/css">
+            body {
+                background-color: #444;
+                color: white;
+                font-family: Helvetica, Arial, sans-serif;
+            }
+            .led_table td, .led_table th { width: 2em; height: 2em }
+            td.led { background-color: black; }
+            .led.on { background-color: red; }
+        </style>
+        <script type="text/javascript">
+            function matrixRequest(url, callback, context) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url);
+                if (callback) {
+                    xhr.onreadystatechange = function() {
+                        if (xhr.readyState == 4 && xhr.status == 200) {
+                            callback(context);
+                        }
+                    };
+                }
+                xhr.send(null);
+            }
+            function hasClass(element, className) {
+                return ((' ' + element.className + ' ').replace(/[\r\n\t]/g, ' ').indexOf(' ' + className + ' ') > -1);
+            }
+            function addClass(element, className) {
+                if (!hasClass(element, className)) {
+                    element.className = (element.className + ' ' + className).trim();
+                }
+            }
+            function removeClass(element, className) {
+                element.className = (' ' + element.className + ' ').replace(/[\r\n\t]/g, ' ').replace(' ' + className + ' ', '').trim();
+            }
+            function reset() {
+                matrixRequest('/reset', function() {
+                    var leds = document.getElementsByClassName('led');
+                    for (var i=0; i<leds.length; i++) {
+                        removeClass(leds[i], 'on');
+                    }
+                    document.getElementById('current').value = 1;
+                });
+            }
+            function allOn() {
+                matrixRequest('/allOn', function() {
+                    var leds = document.getElementsByClassName('led');
+                    for (var i=0; i<leds.length; i++) {
+                        addClass(leds[i], 'on');
+                    }
+                });
+            }
+            function allOff() {
+                matrixRequest('/allOff', function() {
+                    var leds = document.getElementsByClassName('led');
+                    for (var i=0; i<leds.length; i++) {
+                        removeClass(leds[i], 'on');
+                    }
+                });
+            }
+            function toggleLED(sender, x, y) {
+                if (hasClass(sender, 'on')) {
+                    matrixRequest('/clearPixel/' + x + '/' + y, function() {
+                        removeClass(sender, 'on');
+                    });
+                } else {
+                    matrixRequest('/setPixel/' + x + '/' + y, function() {
+                        addClass(sender, 'on');
+                    });
+                }
+            }
+            function toggleColumn(x) {
+                for (var y=0; y<{{ height }}; y++) {
+                    element = document.getElementById('led_' + x + '_' + y);
+                    toggleLED(element, x, y);
+                }
+            }
+            function toggleRow(y) {
+                for (var x=0; x<{{ width }}; x++) {
+                    element = document.getElementById('led_' + x + '_' + y);
+                    toggleLED(element, x, y);
+                }
+            }
+            function setCurrent(sender) {
+                newCurrent = parseInt(sender.value) || 1
+                var current = Math.min(Math.max(newCurrent, 0), 30);
+                sender.value = current;
+                matrixRequest('/setCurrent/' + current);
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Boldport - TheMatrix</h1>
+        <table class="led_table">
+            <thead>
+                <tr>
+                    <th></th>
+                    {% for x in range(width) %}
+                    <th onclick="toggleColumn({{x}});">{{ x }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for y in range(height) %}
+                    <tr>
+                        <th onclick="toggleRow({{y}});">{{ y }}</th>
+                        {% for x in range(width) %}
+                            {% set led_id = "led_%d_%d" % (x, y) %}
+                            <td class="led{{' on' if pixels[y][x]}}" id="{{ led_id }}" onclick="toggleLED(this, {{ x }}, {{ y }});" >&nbsp;</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td colspan=2" align="center"><button id="reset" onclick="reset();">Reset</button></td>
+                    <td colspan="2" align="center"><button id="allOff" onclick="allOff();">All Off</button></td>
+                    <td colspan="2" align="center"><button id="allOn" onclick="allOn();">All On</button></td>
+                    <td colspan="4" align="center">Current:&nbsp;<input type="text" length="2" size="2" id="current" value="{{ current }}" onchange="setCurrent(this);">&nbsp;mA</td>
+                </tr>
+            </tfoot>
+        </table>
+    </body>
+</html>
