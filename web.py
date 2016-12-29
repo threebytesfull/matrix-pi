@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from the_matrix import TheMatrix
 
 import re
@@ -88,16 +88,22 @@ def allOn():
     matrix.writeOnOffFrame(0, onOffFrame)
     return ""
 
-@app.route('/setPixel/<x>/<y>')
-def setPixel(x, y):
-    x, y = int(x), int(y)
-    onOffFrame.setPixel(x, y)
+@app.route('/setPixel', methods=['POST'])
+def setPixel():
+    coords = [int(i) for i in request.form['coords'].split(',')]
+    while coords:
+        x, y = coords[:2]
+        coords = coords[2:]
+        onOffFrame.setPixel(x, y)
     return updateFrame(0)
 
-@app.route('/clearPixel/<x>/<y>')
-def clearPixel(x, y):
-    x, y = int(x), int(y)
-    onOffFrame.setPixel(x, y, 0)
+@app.route('/clearPixel', methods=['POST'])
+def clearPixel():
+    coords = [int(i) for i in request.form['coords'].split(',')]
+    while coords:
+        x, y = coords[:2]
+        coords = coords[2:]
+        onOffFrame.setPixel(x, y, 0)
     return updateFrame(0)
 
 if __name__ == "__main__":
