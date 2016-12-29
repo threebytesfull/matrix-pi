@@ -7,12 +7,34 @@
                 background-color: #444;
                 color: white;
                 font-family: Helvetica, Arial, sans-serif;
+                user-select: none;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
             }
             .led_table td, .led_table th { width: 2em; height: 2em }
+            .clickable { cursor: pointer; }
             td.led { background-color: black; }
             .led.on { background-color: red; }
+            table.chip { border-spacing: 0; border-collapse: separate; }
+            .chip { text-align: center; }
+            .chip td { width: 2em; height: 2em; }
+            .chip .label { width: 3em; background-color: black; border: 2px solid #444; }
+            .chip .pin { background-color: #eee; color: black; }
+            .chip .body { width: 9em; background-color: black; }
+            .clickable.lo:hover { background-color: #600; }
+            .clickable.hi:hover { background-color: #060; }
         </style>
         <script type="text/javascript">
+            var chip = [
+                {%- for pin in chip %}
+                {
+                    label:'{{ pin.label }}',
+                    anode_leds:[{% for pair in pin.anode_leds %}[{{pair[0]}},{{pair[1]}}],{% endfor %}],
+                    cathode_leds:[{% for pair in pin.cathode_leds %}[{{pair[0]}},{{pair[1]}}],{% endfor %}],
+                },
+                {% endfor %}
+            ];
             function matrixRequest(url, callback, context) {
                 var xhr = new XMLHttpRequest();
                 xhr.open('GET', url);
@@ -90,6 +112,20 @@
                 sender.value = current;
                 matrixRequest('/setCurrent/' + current);
             }
+            function hiSignal(pin) {
+                for (var i=0; i<pin.anode_leds.length; i++) {
+                    pair = pin.anode_leds[i];
+                    element = document.getElementById('led_' + pair[0] + '_' + pair[1]);
+                    toggleLED(element, pair[0], pair[1]);
+                }
+            }
+            function loSignal(pin) {
+                for (var i=0; i<pin.cathode_leds.length; i++) {
+                    pair = pin.cathode_leds[i];
+                    element = document.getElementById('led_' + pair[0] + '_' + pair[1]);
+                    toggleLED(element, pair[0], pair[1]);
+                }
+            }
         </script>
     </head>
     <body>
@@ -99,17 +135,17 @@
                 <tr>
                     <th></th>
                     {% for x in range(width) %}
-                    <th onclick="toggleColumn({{x}});">{{ x }}</th>
+                    <th class="clickable" onclick="toggleColumn({{x}});">{{ x }}</th>
                     {% endfor %}
                 </tr>
             </thead>
             <tbody>
                 {% for y in range(height) %}
                     <tr>
-                        <th onclick="toggleRow({{y}});">{{ y }}</th>
+                        <th class="clickable" onclick="toggleRow({{y}});">{{ y }}</th>
                         {% for x in range(width) %}
                             {% set led_id = "led_%d_%d" % (x, y) %}
-                            <td class="led{{' on' if pixels[y][x]}}" id="{{ led_id }}" onclick="toggleLED(this, {{ x }}, {{ y }});" >&nbsp;</td>
+                            <td class="clickable led{{' on' if pixels[y][x]}}" id="{{ led_id }}" onclick="toggleLED(this, {{ x }}, {{ y }});" >&nbsp;</td>
                         {% endfor %}
                     </tr>
                 {% endfor %}
@@ -123,6 +159,31 @@
                     <td colspan="4" align="center">Current:&nbsp;<input type="text" length="2" size="2" id="current" value="{{ current }}" onchange="setCurrent(this);">&nbsp;mA</td>
                 </tr>
             </tfoot>
+        </table>
+        <table class="chip">
+            <tbody>
+                {% for i in range(14) %}
+                <tr>
+                    {% if chip[i].clickable %}
+                    <td class="clickable hi" onclick="hiSignal(chip[{{i}}]);">hi</td>
+                    <td class="clickable lo" onclick="loSignal(chip[{{i}}]);">lo</td>
+                    {% else %}
+                    <td colspan="2"></td>
+                    {% endif %}
+                    <td class="label">{{ chip[i].label or ' ' }}</td>
+                    <td class="pin">{{ i+1 }}</td>
+                    <td class="body" colspan="3">{{ 'AS1130' if not i }}</td>
+                    <td class="pin">{{ 28-i }}</td>
+                    <td class="label">{{ chip[27-i].label or ' ' }}</td>
+                    {% if chip[27-i].clickable %}
+                    <td class="clickable lo" onclick="loSignal(chip[{{27-i}}]);">lo</td>
+                    <td class="clickable hi" onclick="hiSignal(chip[{{27-i}}]);">hi</td>
+                    {% else %}
+                    <td colspan="2"></td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
     </body>
 </html>
