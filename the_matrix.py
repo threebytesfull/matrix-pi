@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 
-import math, smbus, time
+import math, time
+from layout import Layout
+
+try:
+    from smbus import SMBus
+except:
+    from fake_smbus import SMBus
 
 class TheMatrix():
     """Class to control Boldport 'The Matrix'"""
@@ -32,7 +38,7 @@ class TheMatrix():
     def __init__(self, address=0x30, bus_number=1):
         """Create TheMatrix object with specified I2C address and bus number"""
         self._address = address
-        self._bus = smbus.SMBus(bus_number)
+        self._bus = SMBus(bus_number)
 
     def _writeCommand(self, register, subregister, data):
         self._bus.write_byte_data(self._address, self._register.select, register)
@@ -158,12 +164,13 @@ class TheMatrix():
             self._writeCommand(self._register.on_off_frame+number, i, data[i])
 
     class OnOffFrame():
-        def __init__(self, value=0, pwm=0):
+        def __init__(self, value=0, pwm=0, layout=Layout()):
             value &= 1
             byte0 = int(''.join([str(value) for i in range(8)]), 2)
-            byte1 = byte0 & 3
+            byte1 = byte0 & 7
             self._pixels = [byte0, byte1] * 12
             self.pwm = pwm
+            self._layout = layout
 
         @property
         def pwm(self):
@@ -175,31 +182,31 @@ class TheMatrix():
 
         def setPixel(self, x, y, value=1):
             value &= 1
-            segment = int(x/2)
-            side = x % 2
-            led = side*5 + y
-            byte = int(led/8)
-            addr = segment*2+byte
-            bit = led % 8
-            masked = 1 << bit
+            led_number = self.layout.ledAt(x, y)
+            address_byte, address_bit = self.layout.numToAddressOnOff(led_number)
+            masked = 1 << address_bit
             if value == 1:
-                self._pixels[addr] |= masked
+                self._pixels[address_byte] |= masked
             else:
-                self._pixels[addr] &= ~masked & 255
+                self._pixels[address_byte] &= ~masked & 255
 
         def getPixel(self, x, y):
-            segment = int(x/2)
-            side = x % 2
-            led = side*5 + y
-            byte = int(led/8)
-            addr = segment*2+byte
-            bit = led % 8
-            value = (self._pixels[addr] >> bit) & 1
+            led_number = self.layout.ledAt(x, y)
+            address_byte, address_bit = self.layout.numToAddressOnOff(led_number)
+            value = (self._pixels[address_byte] >> address_bit) & 1
             return value
 
         @property
         def data(self):
             return self._pixels
+
+        @property
+        def layout(self):
+            return self._layout
+
+        @layout.setter
+        def layout(self, newLayout):
+            self._layout = newLayout
 
         def __repr__(self):
             output = ''
@@ -211,40 +218,43 @@ class TheMatrix():
             return output
 
     class BlinkPWMFrame():
-        def __init__(self, blink=0, pwm=255):
+        def __init__(self, blink=0, pwm=255, layout=Layout()):
             blink &= 1
             pwm &= 255
             blink_byte0 = int(''.join([str(blink) for i in range(8)]), 2)
-            blink_byte1 = blink_byte0 & 3
+            blink_byte1 = blink_byte0 & 7
             blink_bytes = [blink_byte0, blink_byte1] * 12
             pwm_bytes = [pwm] * 12*11
             self._data = blink_bytes + pwm_bytes
+            self._layout = layout
 
         @property
         def data(self):
             return self._data
 
+        @property
+        def layout(self):
+            return self._layout
+
+        @layout.setter
+        def layout(self, newLayout):
+            self._layout = newLayout
+
         def setBlink(self, x, y, value=1):
             value &= 1
-            segment = int(x/2)
-            side = x % 2
-            led = side*5 + y
-            byte = int(led/8)
-            addr = segment*2+byte
-            bit = led % 8
-            masked = 1 << bit
+            led_number = self.layout.ledAt(x, y)
+            address_byte, address_bit = self.layout.numToAddressBlink(led_number)
+            masked = 1 << address_bit
             if value == 1:
-                self._data[addr] |= masked
+                self._data[address_byte] |= masked
             else:
-                self._pixels[addr] &= ~masked & 255
+                self._pixels[address_byte] &= ~masked & 255
 
         def setPWM(self, x, y, value=255):
             value &= 255
-            segment = int(x/2)
-            side = x % 2
-            led = side*5 + y
-            addr = 24 + segment*11 + side*5 + y
-            self._data[addr] = value
+            led_number = self.layout.ledAt(x, y)
+            address_byte = self.layout.numToAddressPWM(led_number)
+            self._data[address_byte] = value
 
 def main():
     matrix = TheMatrix()

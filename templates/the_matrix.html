@@ -176,8 +176,13 @@
                     });
                 }
             }
+            function toggleReversed(sender) {
+                matrixRequest('/setReversed/' + (sender.checked ? 1 : 0), function() {
+                    location.reload(true); // too lazy to write ajax refresh right now!
+                });
+            }
             function setCurrent(sender) {
-                newCurrent = parseInt(sender.value) || 1
+                var newCurrent = parseInt(sender.value) || 1
                 var current = Math.min(Math.max(newCurrent, 0), 30);
                 sender.value = current;
                 matrixRequest('/setCurrent/' + current);
@@ -281,6 +286,7 @@
                     <td colspan="2" align="center"><button id="allOff" onclick="allOff();">All Off</button></td>
                     <td colspan="2" align="center"><button id="allOn" onclick="allOn();">All On</button></td>
                     <td colspan="4" align="center">Current:&nbsp;<input type="text" length="2" size="2" id="current" value="{{ current }}" onchange="setCurrent(this);">&nbsp;mA</td>
+                    <td colspan="4" align="Center"><label for="reversed">Reversed:&nbsp;</label><input type="checkbox" name="reversed" {{ 'checked="checked"' if reversed }} onclick="toggleReversed(this);"></td>
                 </tr>
             </tfoot>
         </table>
