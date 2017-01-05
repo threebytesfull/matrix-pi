@@ -2,6 +2,7 @@
 
 from flask import Flask, render_template, request
 from the_matrix import TheMatrix
+from layout import Layout
 
 import re
 
@@ -31,14 +32,18 @@ def updateFrame(frameNumber):
 def main_route():
     global ledCurrent
     global onOffFrame
+    global isReversed
     pixels = [[onOffFrame.getPixel(x, y) for x in range(24)] for y in range(5)]
-    return render_template('the_matrix.html', width=24, height=5, current=ledCurrent, pixels=pixels, chip=chip)
+    return render_template('the_matrix.html', width=24, height=5, current=ledCurrent, pixels=pixels, chip=chip, reversed=isReversed)
 
 @app.route('/reset')
 def reset():
     global blinkPWMFrame
     global onOffFrame
     global ledCurrent
+    global isReversed
+
+    isReversed = False
 
     matrix.reset()
     matrix.selectMemoryConfig(1)
@@ -46,10 +51,11 @@ def reset():
     ledCurrent = 1
     matrix.setCurrentSource(ledCurrent)
 
-    blinkPWMFrame = TheMatrix.BlinkPWMFrame()
+    layout = Layout(reversed=isReversed)
+    blinkPWMFrame = TheMatrix.BlinkPWMFrame(layout=layout)
     matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
 
-    onOffFrame = TheMatrix.OnOffFrame()
+    onOffFrame = TheMatrix.OnOffFrame(layout=layout)
     matrix.writeOnOffFrame(0, onOffFrame)
 
     matrix.setDisplayOptions()
@@ -105,6 +111,21 @@ def clearPixel():
         coords = coords[2:]
         onOffFrame.setPixel(x, y, 0)
     return updateFrame(0)
+
+@app.route('/setReversed/<reversedFlag>')
+def setReversed(reversedFlag):
+    global isReversed
+    global blinkPWMFrame
+    global onOffFrame
+    newReversed = reversedFlag == '1'
+    if newReversed != isReversed:
+        isReversed = newReversed
+        newLayout = Layout(reversed=newReversed)
+        blinkPWMFrame.layout = newLayout
+        onOffFrame.layout = newLayout
+        matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
+        matrix.writeOnOffFrame(0, onOffFrame)
+    return ""
 
 if __name__ == "__main__":
     reset()
