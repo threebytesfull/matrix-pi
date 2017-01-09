@@ -46,7 +46,7 @@ class TheMatrix():
 
     def readByte(self, register, subregister):
         """Read byte from specified register and subregister"""
-        self._bus.write_byte_data(self._address, self._register.select, reigster)
+        self._bus.write_byte_data(self._address, self._register.select, register)
         self._bus.write_byte(self._address, subregister)
         return self._bus.read_byte(self._address)
 
