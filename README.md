@@ -16,7 +16,7 @@ Next, you'll need to install the I2C support for Python:
     sudo apt-get install python-smbus
 
 It's possible that you'll need to reboot at this point, but I've not found that
-necessary on the Raspberry Pi boards I've tried so far.  ## Connections
+necessary on the Raspberry Pi boards I've tried so far.
 
 ## Connections
 
