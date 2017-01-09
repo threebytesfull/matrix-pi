@@ -2,6 +2,22 @@
 
 Here's a quick Python test script to drive your board from a Raspberry Pi.
 
+## Prerequisites
+
+You need I2C set up on your Raspberry Pi. If you haven't done this before, you
+need to enable the I2C hardware:
+
+    sudo raspi-config
+
+Choose `9 Advanced Options`, `A6 I2C`, `Yes`, `Ok`, `Finish`.
+
+Next, you'll need to install the I2C support for Python:
+
+    sudo apt-get install python-smbus
+
+It's possible that you'll need to reboot at this point, but I've not found that
+necessary on the Raspberry Pi boards I've tried so far.  ## Connections
+
 ## Connections
 
 To connect to the I2C bus on the Raspberry Pi, connect directly to the
