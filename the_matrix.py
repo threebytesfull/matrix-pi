@@ -129,13 +129,10 @@ class TheMatrix():
         )
         self._writeCommand(self._register.control, self._control.movie_mode, data)
 
-    def setFrameTime(self, delay=1):
+    def setFrameTime(self, delay=1, scroll_dir=1, block_size=1, enable_scrolling=0):
         """Set movie frame time in units of 32.5ms"""
         assert(delay >= 0 and delay <= 15)
         frame_fad = 0
-        scroll_dir = 1
-        block_size = 1
-        enable_scrolling = 0
         data = (
             (frame_fad & 1) << 7 |
             (scroll_dir & 1) << 6 |
