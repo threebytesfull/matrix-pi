@@ -91,6 +91,15 @@ class TheMatrix():
         )
         self._writeCommand(self._register.control, self._control.display_option, data)
 
+    def setClockSync(self, clk_out=0, sync_out=0, sync_in=0):
+        """Set sync options"""
+        data = (
+            (clk_out & 3) << 2 |
+            (sync_out & 1) << 1 |
+            (sync_in & 1)
+        )
+        self._writeCommand(self._register.control, self._control.clock_sync, data)
+
     def displayPictureFrame(self, number=0, display=1, blink=0):
         """Display picture frame"""
         data = (
