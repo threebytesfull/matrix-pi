@@ -119,7 +119,7 @@ class TheMatrix():
         )
         self._writeCommand(self._register.control, self._control.movie, data)
 
-    def setMovieMode(self, frames=1, blink=0, end_last=1):
+    def setMovieMode(self, frames=1, blink=0, end_last=0):
         """Set movie play options"""
         assert(frames >= 1 and frames <= 36)
         data = (
