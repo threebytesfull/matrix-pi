@@ -138,6 +138,24 @@ the command line):
     |  04 |  09 |  14 |  19 |  24 |  29 |  34 |  39 |  44 |  49 |  54 |  59 |  64 |  69 |  74 |  79 |  84 |  89 |  94 |  99 |  A4 |  A9 |  B4 |  B9 |
     +-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+
 
+## [scrolltext.py](./scrolltext.py)
+
+This example displays scrolling text messages across one or more TheMatrix
+boards:
+
+    python scrolltext.py Hello, world!
+
+By default, it uses I2C address `0x30` but you can specify an address with the
+`-a` option:
+
+    python scrolltext.py -a 0x37 'hello again'
+
+If you've got more than one TheMatrix board connected, specify their addresses
+in order and separated by commas for the script to scroll the message across
+them together:
+
+    python scrolltext.py -a 0x30,0x37 "here's a longer message to scroll"
+
 ## Web Interface - [web.py](./web.py)
 
 This is a very basic web interface for controlling TheMatrix. It runs on the
