@@ -38,7 +38,7 @@ superuser privileges:
 
 or
 
-    # Superuser instal for Python 3
+    # Superuser install for Python 3
     sudo pip3 install the_matrix
 
 ## Connections
