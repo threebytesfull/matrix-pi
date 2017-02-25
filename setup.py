@@ -11,12 +11,6 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='the_matrix',
     packages=find_packages(exclude=['tests', 'docs']),
-    scripts=[
-        'bin/the_matrix_banner',
-        'bin/the_matrix_banner_double_height',
-        'bin/the_matrix_banner_double_width',
-        'bin/the_matrix_zigzag',
-    ],
     entry_points = {
         'console_scripts': [
             'the_matrix_leds=the_matrix.leds:command_line',
