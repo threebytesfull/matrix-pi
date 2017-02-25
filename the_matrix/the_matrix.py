@@ -1,10 +1,10 @@
 import math, time
-from layout import Layout
+from .layout import Layout
 
 try:
     from smbus import SMBus
 except:
-    from fake_smbus import SMBus
+    from .fake_smbus import SMBus
 
 class TheMatrix():
     """Class to control Boldport 'The Matrix'"""

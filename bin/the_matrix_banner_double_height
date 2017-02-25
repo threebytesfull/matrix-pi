@@ -10,7 +10,7 @@
 
 from __future__ import print_function
 
-from the_matrix import TheMatrix
+from the_matrix.the_matrix import TheMatrix
 
 import getopt, re, sys
 

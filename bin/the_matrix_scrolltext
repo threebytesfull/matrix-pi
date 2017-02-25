@@ -2,8 +2,8 @@
 
 from __future__ import print_function
 
-from the_matrix import TheMatrix
-from pixel_font import *
+from the_matrix.the_matrix import TheMatrix
+from the_matrix.pixel_font import *
 
 import getopt, math, re, sys
 
