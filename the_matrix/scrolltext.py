@@ -7,18 +7,11 @@ import getopt, math, re, sys
 
 DEFAULT_ADDRESS = 0x30
 
-class ScrollText():
+class ScrollText(object):
     """Class to provide scrolling text for The Matrix"""
 
-    def frame_from_data(frame_data):
-        f = TheMatrix.OnOffFrame()
-        for y in range(5):
-            for x in range(24):
-                if frame_data[y][x] == '#':
-                    f.setPixel(x,y)
-        return f
-
-    def display_banner(args):
+    @classmethod
+    def display_banner(self, args):
         frames = [TheMatrix.OnOffFrame() for _ in range(len(matrix))]
         font = PixelFont5Narrow()
         pixel_data = font.string(' '.join(args))
