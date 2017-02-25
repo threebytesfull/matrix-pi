@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-
 from flask import Flask, render_template, request
-from the_matrix import TheMatrix
-from layout import Layout
+from .the_matrix import TheMatrix
+from .layout import Layout
 
 import re
 
@@ -127,6 +125,9 @@ def setReversed(reversedFlag):
         matrix.writeOnOffFrame(0, onOffFrame)
     return ""
 
-if __name__ == "__main__":
+def main():
     reset()
     app.run(host='0.0.0.0')
+
+if __name__ == "__main__":
+    main()

@@ -1,12 +1,10 @@
-#!/usr/bin/env python
-
 import math, time
-from layout import Layout
+from .layout import Layout
 
 try:
     from smbus import SMBus
 except:
-    from fake_smbus import SMBus
+    from .fake_smbus import SMBus
 
 class TheMatrix():
     """Class to control Boldport 'The Matrix'"""
@@ -261,29 +259,3 @@ class TheMatrix():
             led_number = self.layout.ledAt(x, y)
             address_byte = self.layout.numToAddressPWM(led_number)
             self._data[address_byte] = value
-
-def main():
-    matrix = TheMatrix()
-    matrix.reset()
-    matrix.selectMemoryConfig(1)
-    matrix.setCurrentSource(1)
-
-    # write blink/pwm frame 0
-    blinkPWMFrame = TheMatrix.BlinkPWMFrame()
-    matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
-
-    # write on/off frame 0
-    onOffFrame = TheMatrix.OnOffFrame(1) # new frame with all LEDs on
-    matrix.writeOnOffFrame(0, onOffFrame)
-
-    # set display options
-    matrix.setDisplayOptions()
-
-    # display picture frame 0
-    matrix.displayPictureFrame(0)
-
-    # display on
-    matrix.display(1)
-
-if __name__ == "__main__":
-    main()
