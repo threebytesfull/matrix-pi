@@ -15,13 +15,12 @@ setup(
         'bin/the_matrix_banner',
         'bin/the_matrix_banner_double_height',
         'bin/the_matrix_banner_double_width',
-        'bin/the_matrix_leds',
-        #'bin/the_matrix_scrolltext',
         'bin/the_matrix_web',
         'bin/the_matrix_zigzag',
     ],
     entry_points = {
         'console_scripts': [
+            'the_matrix_leds=the_matrix.leds:command_line',
             'the_matrix_scrolltext=the_matrix.scrolltext:command_line',
         ]
     },
