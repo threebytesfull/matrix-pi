@@ -88,7 +88,7 @@ class LEDs(object):
             m.displayPictureFrame(0)
 
 def usage():
-    print("Usage: %s [-h] [-l] [-p] <led_numbers>" % sys.argv[0], file=sys.stderr)
+    print("Usage: {} [-a <address>[,<address>...]] [-h] [-l] [-p] <led_numbers>".format(sys.argv[0]), file=sys.stderr)
 
 def main(args):
     global matrix
