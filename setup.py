@@ -10,7 +10,18 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='the_matrix',
-    version='0.1.0',
+    packages=find_packages(exclude=['tests', 'docs']),
+    scripts=[
+        'bin/the_matrix_banner',
+        'bin/the_matrix_banner_double_height',
+        'bin/the_matrix_banner_double_width',
+        'bin/the_matrix_leds',
+        'bin/the_matrix_scrolltext',
+        'bin/the_matrix_web',
+        'bin/the_matrix_zigzag',
+    ],
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
 
     description='Module to control Boldport "The Matrix"',
     long_description=long_description,
@@ -36,14 +47,4 @@ setup(
     ],
 
     keywords='boldport led matrix i2c rpi',
-    packages=find_packages(exclude=['tests', 'docs']),
-    scripts=[
-        'bin/the_matrix_banner',
-        'bin/the_matrix_banner_double_height',
-        'bin/the_matrix_banner_double_width',
-        'bin/the_matrix_leds',
-        'bin/the_matrix_scrolltext',
-        'bin/the_matrix_web',
-        'bin/the_matrix_zigzag',
-    ],
 )
