@@ -7,9 +7,10 @@ import getopt, re, sys
 # physical wiring
 cs_pairs = [(cathode, anode) for cathode in range(12) for anode in [a for a in range(12) if a != cathode][:10]]
 
-class LEDs():
+class LEDs(object):
 
-    def physical_layout():
+    @classmethod
+    def physical_layout(self):
         print("Physical layout:")
         print(("+" + "-"*11)*12 + "+")
         print("|"+("|".join([("/CS%d" % segment).center(11) for segment in range(12)])+"|"))
@@ -24,7 +25,8 @@ class LEDs():
             print(("+" + "-"*5)*24 + "+")
         print("")
 
-    def logical_layout():
+    @classmethod
+    def logical_layout(self):
         print("Logical layout:")
         print(("+" + "-"*11)*12 + "+")
         print("|"+("|".join([("Segment %X" % segment).center(11) for segment in range(12)])+"|"))
@@ -39,7 +41,8 @@ class LEDs():
             print(("+" + "-"*5)*24 + "+")
         print("")
 
-    def display_leds(leds):
+    @classmethod
+    def display_leds(self, leds):
         """Display listed LEDs (logical number in hex or x,y coordinates in decimal)"""
         matrix = TheMatrix()
 
