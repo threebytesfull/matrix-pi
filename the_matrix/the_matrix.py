@@ -7,6 +7,8 @@ try:
 except:
     from .fake_smbus import SMBus
 
+DEFAULT_CURRENT_SOURCE_MA = 5
+
 class TheMatrix():
     """Class to control Boldport 'The Matrix'"""
     class _register:
@@ -78,7 +80,7 @@ class TheMatrix():
         """Select RAM configuration"""
         self._configure(mem_conf=number)
 
-    def setCurrentSource(self, mA=5):
+    def setCurrentSource(self, mA=DEFAULT_CURRENT_SOURCE_MA):
         """Set current source (milliamps)"""
         assert(mA >= 0 and mA <= 30)
         data = int(mA*(255/30.0))

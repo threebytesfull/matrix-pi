@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from .the_matrix import TheMatrix
+from .the_matrix import TheMatrix, DEFAULT_CURRENT_SOURCE_MA
 from .detect import detect
 
 import getopt, re, sys
@@ -48,7 +48,7 @@ class LEDs(object):
         for m in matrix:
             m.reset()
             m.selectMemoryConfig(1)
-            m.setCurrentSource(1)
+            m.setCurrentSource(DEFAULT_CURRENT_SOURCE_MA)
 
             blinkPWMFrame = TheMatrix.BlinkPWMFrame()
             m.writeBlinkPWMFrame(0, blinkPWMFrame)

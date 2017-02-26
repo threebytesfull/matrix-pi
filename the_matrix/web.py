@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from .the_matrix import TheMatrix
+from .the_matrix import TheMatrix, DEFAULT_CURRENT_SOURCE_MA
 from .layout import Layout
 
 import re
@@ -46,7 +46,7 @@ def reset():
     matrix.reset()
     matrix.selectMemoryConfig(1)
 
-    ledCurrent = 1
+    ledCurrent = DEFAULT_CURRENT_SOURCE_MA
     matrix.setCurrentSource(ledCurrent)
 
     layout = Layout(reversed=isReversed)
