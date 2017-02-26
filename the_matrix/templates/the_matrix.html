@@ -20,17 +20,17 @@
                     <tr>
                         <th></th>
                         {% for x in range(width) %}
-                        <th class="clickable" onclick="toggleColumn({{x}});">{{ x }}</th>
+                        <th class="clickable led_col" data-column="{{x}}">{{ x }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for y in range(height) %}
                         <tr>
-                            <th class="clickable" onclick="toggleRow({{y}});">{{ y }}</th>
+                            <th class="clickable led_row" data-row="{{y}}">{{ y }}</th>
                             {% for x in range(width) %}
                                 {% set led_id = "led_%d_%d" % (x, y) %}
-                                <td class="clickable led{{' on' if pixels[y][x]}}" id="{{ led_id }}" onclick="toggleLED(this, {{ x }}, {{ y }});" >&nbsp;</td>
+                                <td class="clickable led{{' on' if pixels[y][x]}}" id="{{ led_id }}" data-x="{{x}}" data-y="{{y}}">&nbsp;</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
@@ -41,8 +41,8 @@
                         <td colspan=2" align="center"><button id="reset" onclick="reset();">Reset</button></td>
                         <td colspan="2" align="center"><button id="allOff" onclick="allOff();">All Off</button></td>
                         <td colspan="2" align="center"><button id="allOn" onclick="allOn();">All On</button></td>
-                        <td colspan="4" align="center">Current:&nbsp;<input type="text" length="2" size="2" id="current" value="{{ current }}" onchange="setCurrent(this);">&nbsp;mA</td>
-                        <td colspan="4" align="Center"><label for="reversed">Reversed:&nbsp;</label><input type="checkbox" name="reversed" {{ 'checked="checked"' if reversed }} onclick="toggleReversed(this);"></td>
+                        <td colspan="4" align="center">Current:&nbsp;<input type="text" length="2" size="2" id="current" value="{{ current }}">&nbsp;mA</td>
+                        <td colspan="4" align="Center"><label for="reversed">Reversed:&nbsp;</label><input type="checkbox" name="reversed" {{ 'checked="checked"' if reversed }}></td>
                     </tr>
                 </tfoot>
             </table>
@@ -53,8 +53,8 @@
                     {% for i in range(14) %}
                     <tr>
                         {% if chip[i].clickable %}
-                        <td class="clickable hi" onclick="hiSignal(chip[{{i}}]);">hi</td>
-                        <td class="clickable lo" onclick="loSignal(chip[{{i}}]);">lo</td>
+                        <td class="clickable hi" data-signal="{{ chip[i].label or ' ' }}">hi</td>
+                        <td class="clickable lo" data-signal="{{ chip[i].label or ' ' }}">lo</td>
                         {% else %}
                         <td colspan="2"></td>
                         {% endif %}
@@ -64,8 +64,8 @@
                         <td class="pin">{{ 28-i }}</td>
                         <td class="label">{{ chip[27-i].label or ' ' }}</td>
                         {% if chip[27-i].clickable %}
-                        <td class="clickable lo" onclick="loSignal(chip[{{27-i}}]);">lo</td>
-                        <td class="clickable hi" onclick="hiSignal(chip[{{27-i}}]);">hi</td>
+                        <td class="clickable lo" data-signal="{{ chip[27-i].label or ' ' }}">lo</td>
+                        <td class="clickable hi" data-signal="{{ chip[27-i].label or ' ' }}">hi</td>
                         {% else %}
                         <td colspan="2"></td>
                         {% endif %}
