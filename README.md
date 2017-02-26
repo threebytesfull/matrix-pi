@@ -77,7 +77,8 @@ responding and has the address you're expecting:
     i2cdetect -y 1
 
 By default, TheMatrix will have address 0x30 if you haven't added a resistor at
-R4 to specify otherwise. The output should look something like this:
+R5 (R4 on the prototype boards) to specify otherwise. The output should look
+something like this:
 
          0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
     00:          -- -- -- -- -- -- -- -- -- -- -- -- --
