@@ -64,7 +64,7 @@ class LEDs(object):
                     if match:
                         low = match.group(1)
                         signal = int(match.group(2))
-                        connected_pairs = [i for i in range(len(cs_pairs)) if cs_pairs[i][1 if low else 0] == signal]
+                        connected_pairs = [i for i in range(len(cs_pairs)) if cs_pairs[i][0 if low else 1] == signal]
                         for pair_index in connected_pairs:
                             x = int(pair_index/5)
                             y = pair_index % 5
