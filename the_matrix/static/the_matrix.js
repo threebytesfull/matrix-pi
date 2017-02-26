@@ -10,19 +10,10 @@ function matrixRequest(url, callback, context) {
 }
 
 function matrixPostRequest(url, data, callback, context) {
-  // encode data manually - need to find how to recognise param[] in Flask
-  var dataKeys = Object.keys(data);
-  var formFields = [];
-  for (var i=0; i<dataKeys.length; i++) {
-    var value = data[dataKeys[i]];
-    if (typeof(value) == 'string') { value = [value]; }
-    formFields.push(dataKeys[i] + '=' + value.join(','));
-  }
   $.ajax({
     url: url,
     method: 'POST',
-    processData: false,
-    data: formFields.join('&'),
+    data: data,
   }).done(function(msg) {
     if (callback) {
       callback(context);
@@ -50,7 +41,7 @@ function allOff() {
 
 function toggleLED() {
   var led = $(this);
-  var coords = led.data('x') + ',' + led.data('y');
+  var coords = [led.data('x') + ',' + led.data('y')];
   if ($(this).hasClass('on')) {
     matrixPostRequest('/clearPixel', {coords:coords}, function() {
       led.removeClass('on');
