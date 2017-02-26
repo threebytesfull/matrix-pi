@@ -77,7 +77,8 @@ responding and has the address you're expecting:
     i2cdetect -y 1
 
 By default, TheMatrix will have address 0x30 if you haven't added a resistor at
-R4 to specify otherwise. The output should look something like this:
+R5 (R4 on the prototype boards) to specify otherwise. The output should look
+something like this:
 
          0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
     00:          -- -- -- -- -- -- -- -- -- -- -- -- --
@@ -88,6 +89,28 @@ R4 to specify otherwise. The output should look something like this:
     50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
     60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
     70: -- -- -- -- -- -- -- --
+
+## [the_matrix_identify](./the_matrix/identify.py)
+
+This script can auto-detect the presence of a device on the I2C bus with the
+address in the range expected for TheMatrix - 0x30 to 0x37. If you run this
+script with no parameters:
+
+    # detect and identify TheMatrix boards
+    the_matrix_identify
+
+then each detected board will display its own address. If you want to identify
+a particular board or boards, you can specify their addresses on the command
+line:
+
+    # detect one specific board
+    the_matrix_identify -a 0x30
+
+    # detect two specific boards
+    the_matrix_identify -a 0x30,0x31
+
+That might be useful if you've got other I2C devices on the same bus - some
+write-only devices don't like being asked for data. :)
 
 ## [the_matrix_leds](./the_matrix/leds.py)
 
@@ -108,11 +131,16 @@ pin:
     # turn on all LEDs whose cathode connects to CS10
     the_matrix_leds /CS10
 
-If the board you are testing is not at the default address of 0x30, you can
-specify an address on the command line with `-a`:
+If you don't specify a board address, the script will automatically detect any
+TheMatrix boards and send the same commands to each.
+
+If you want to specify one or more boards, you can do so with the `-a` option:
 
     # turn on three LEDs, board address 0x37
     the_matrix_leds -a 0x37 7 9 b0
+
+    # turn on some LEDs on boards 0x30 and 0x31
+    the_matrix_leds -a 0x30,0x31 /CS9
 
 It can also show a map of the physical connections for each LED:
 
@@ -160,16 +188,23 @@ boards:
 
     the_matrix_scrolltext Hello, world!
 
-By default, it uses I2C address `0x30` but you can specify an address with the
-`-a` option:
+If you don't specify a board address, the script will auto-detect and use any
+TheMatrix boards it finds. It will assume that they're arrange in ascending
+address order, left-to-right, and will combine them into a wide display. For
+example, with addresses 0x30 and 0x34, it would assume the following display:
 
+    +------+------+
+    | 0x30 | 0x34 |
+    +------+------+
+
+If you want to specify particular boards, or if they are not arranged in the
+expected order, you can use the `-a` option:
+
+    # scroll message on one particular board
     the_matrix_scrolltext -a 0x37 'hello again'
 
-If you've got more than one TheMatrix board connected to make a wider display,
-specify their addresses in order and separated by commas for the script to
-scroll the message across them together:
-
-    the_matrix_scrolltext -a 0x30,0x37 "here's a longer message to scroll"
+    # scroll message on two unsorted boards
+    the_matrix_scrolltext -a 0x34,0x30 'custom order'
 
 ## Web Interface - [the_matrix_web](./the_matrix/web.py)
 
@@ -184,3 +219,6 @@ To start the application, just run it:
 and visit your Raspberry Pi's IP address or hostname on port 5000 in your
 browser. The application lets you control individual LEDS, rows and columns of
 them together and vary the LED current.
+
+The web interface currently only works for a single board, so it auto-detects
+boards and picks the one with the lowest address.

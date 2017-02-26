@@ -2,10 +2,9 @@ from __future__ import print_function
 
 from .the_matrix import TheMatrix
 from .pixel_font import *
+from .detect import detect
 
 import getopt, math, re, sys
-
-DEFAULT_ADDRESS = 0x30
 
 class ScrollText(object):
     """Class to provide scrolling text for The Matrix"""
@@ -64,7 +63,7 @@ def usage():
 def main(args):
     global matrix
 
-    addresses = [DEFAULT_ADDRESS]
+    addresses = []
 
     try:
         opts, args = getopt.getopt(args, 'ha:')
@@ -82,6 +81,9 @@ def main(args):
     if len(args) < 1:
         usage()
         sys.exit(2)
+
+    if len(addresses) == 0:
+        addresses = detect()
 
     matrix = [TheMatrix(address) for address in addresses]
 
