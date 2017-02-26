@@ -46,7 +46,10 @@ class TheMatrix():
 
     def _writeCommand(self, register, subregister, data):
         self._bus.write_byte_data(self._address, self._register.select, register)
-        self._bus.write_byte_data(self._address, subregister, data)
+        if not isinstance(data, list):
+            data = [data]
+        for i in range(0, len(data), 32):
+            self._bus.write_i2c_block_data(self._address, subregister+i, data[i:i+32])
 
     def readByte(self, register, subregister):
         """Read byte from specified register and subregister"""
@@ -164,14 +167,12 @@ class TheMatrix():
     def writeBlinkPWMFrame(self, number, frameData):
         """Write a blink/PWM frame to the specified frame number"""
         data = frameData.data
-        for i in range(len(data)):
-            self._writeCommand(self._register.blink_pwm_frame+number, i, data[i])
+        self._writeCommand(self._register.on_off_frame+number, 0, data)
 
     def writeOnOffFrame(self, number, frameData):
         """Write an on/off frame to the specified frame number"""
         data = frameData.data
-        for i in range(len(data)):
-            self._writeCommand(self._register.on_off_frame+number, i, data[i])
+        self._writeCommand(self._register.on_off_frame+number, 0, data)
 
     class OnOffFrame():
         def __init__(self, value=0, pwm=0, layout=Layout()):
