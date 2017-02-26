@@ -1,221 +1,137 @@
 function matrixRequest(url, callback, context) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
+  $.ajax({
+    url: url,
+    method: 'GET',
+  }).done(function(msg) {
     if (callback) {
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                callback(context);
-            }
-        };
+      callback(context);
     }
-    xhr.send(null);
-}
-function matrixPostRequest(url, data, callback, context) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
-    if (callback) {
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                callback(context);
-            }
-        }
-    }
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    dataKeys = Object.keys(data);
-    var formFields = [];
-    for (var i=0; i<dataKeys.length; i++) {
-        value = data[dataKeys[i]];
-        if (typeof(value) == 'string') { value = [value]; }
-        formFields.push(dataKeys[i] + '=' + value.join(','));
-    }
-    xhr.send(formFields.join('&'));
-}
-function hasClass(element, className) {
-    return ((' ' + element.className + ' ').replace(/[\r\n\t]/g, ' ').indexOf(' ' + className + ' ') > -1);
-}
-function addClass(element, className) {
-    if (!hasClass(element, className)) {
-        element.className = (element.className + ' ' + className).trim();
-    }
-}
-function removeClass(element, className) {
-    element.className = (' ' + element.className + ' ').replace(/[\r\n\t]/g, ' ').replace(' ' + className + ' ', '').trim();
-}
-function reset() {
-    matrixRequest('/reset', function() {
-        var leds = document.getElementsByClassName('led');
-        for (var i=0; i<leds.length; i++) {
-            removeClass(leds[i], 'on');
-        }
-        document.getElementById('current').value = 1;
-    });
-}
-function allOn() {
-    matrixRequest('/allOn', function() {
-        var leds = document.getElementsByClassName('led');
-        for (var i=0; i<leds.length; i++) {
-            addClass(leds[i], 'on');
-        }
-    });
-}
-function allOff() {
-    matrixRequest('/allOff', function() {
-        var leds = document.getElementsByClassName('led');
-        for (var i=0; i<leds.length; i++) {
-            removeClass(leds[i], 'on');
-        }
-    });
-}
-function toggleLED(sender, x, y) {
-    if (hasClass(sender, 'on')) {
-        matrixPostRequest('/clearPixel', {coords:x+','+y}, function() {
-            removeClass(sender, 'on');
-        });
-    } else {
-        matrixPostRequest('/setPixel', {coords:x+','+y}, function() {
-            addClass(sender, 'on');
-        });
-    }
-}
-function toggleColumn(x) {
-    var setElements = [];
-    var clearElements = [];
-    var setCoords = [];
-    var clearCoords = [];
-    for (var y=0; y<height; y++) {
-        element = document.getElementById('led_' + x + '_' + y);
-        coords = x + ',' + y;
-        if (hasClass(element, 'on')) {
-            clearElements.push(element);
-            clearCoords.push(coords);
-        } else {
-            setElements.push(element);
-            setCoords.push(coords);
-        }
-    }
-    if (clearElements.length) {
-        matrixPostRequest('/clearPixel', {coords:clearCoords}, function() {
-            for (var i=0; i<clearElements.length; i++) {
-                removeClass(clearElements[i], 'on');
-            }
-        });
-    }
-    if (setElements.length) {
-        matrixPostRequest('/setPixel', {coords:setCoords}, function() {
-            for (var i=0; i<setElements.length; i++) {
-                addClass(setElements[i], 'on');
-            }
-        });
-    }
-}
-function toggleRow(y) {
-    var setElements = [];
-    var clearElements = [];
-    var setCoords = [];
-    var clearCoords = [];
-    for (var x=0; x<width; x++) {
-        element = document.getElementById('led_' + x + '_' + y);
-        coords = x + ',' + y;
-        if (hasClass(element, 'on')) {
-            clearElements.push(element);
-            clearCoords.push(coords);
-        } else {
-            setElements.push(element);
-            setCoords.push(coords);
-        }
-    }
-    if (clearElements.length) {
-        matrixPostRequest('/clearPixel', {coords:clearCoords}, function() {
-            for (var i=0; i<clearElements.length; i++) {
-                removeClass(clearElements[i], 'on');
-            }
-        });
-    }
-    if (setElements.length) {
-        matrixPostRequest('/setPixel', {coords:setCoords}, function() {
-            for (var i=0; i<setElements.length; i++) {
-                addClass(setElements[i], 'on');
-            }
-        });
-    }
-}
-function toggleReversed(sender) {
-    matrixRequest('/setReversed/' + (sender.checked ? 1 : 0), function() {
-        location.reload(true); // too lazy to write ajax refresh right now!
-    });
-}
-function setCurrent(sender) {
-    var newCurrent = parseInt(sender.value) || 1
-    var current = Math.min(Math.max(newCurrent, 0), 30);
-    sender.value = current;
-    matrixRequest('/setCurrent/' + current);
-}
-function hiSignal(pin) {
-    var setElements = [];
-    var clearElements = [];
-    var setCoords = [];
-    var clearCoords = [];
-    for (var i=0; i<pin.anode_leds.length; i++) {
-        pair = pin.anode_leds[i];
-        var x = pair[0];
-        var y = pair[1];
-        element = document.getElementById('led_' + x + '_' + y);
-        coords = x + ',' + y;
-        if (hasClass(element, 'on')) {
-            clearElements.push(element);
-            clearCoords.push(coords);
-        } else {
-            setElements.push(element);
-            setCoords.push(coords);
-        }
-    }
-    if (clearElements.length) {
-        matrixPostRequest('/clearPixel', {coords:clearCoords}, function() {
-            for (var i=0; i<clearElements.length; i++) {
-                removeClass(clearElements[i], 'on');
-            }
-        });
-    }
-    if (setElements.length) {
-        matrixPostRequest('/setPixel', {coords:setCoords}, function() {
-            for (var i=0; i<setElements.length; i++) {
-                addClass(setElements[i], 'on');
-            }
-        });
-    }
-}
-function loSignal(pin) {
-    var setElements = [];
-    var clearElements = [];
-    var setCoords = [];
-    var clearCoords = [];
-    for (var i=0; i<pin.cathode_leds.length; i++) {
-        pair = pin.cathode_leds[i];
-        var x = pair[0];
-        var y = pair[1];
-        element = document.getElementById('led_' + x + '_' + y);
-        coords = x + ',' + y;
-        if (hasClass(element, 'on')) {
-            clearElements.push(element);
-            clearCoords.push(coords);
-        } else {
-            setElements.push(element);
-            setCoords.push(coords);
-        }
-    }
-    if (clearElements.length) {
-        matrixPostRequest('/clearPixel', {coords:clearCoords}, function() {
-            for (var i=0; i<clearElements.length; i++) {
-                removeClass(clearElements[i], 'on');
-            }
-        });
-    }
-    if (setElements.length) {
-        matrixPostRequest('/setPixel', {coords:setCoords}, function() {
-            for (var i=0; i<setElements.length; i++) {
-                addClass(setElements[i], 'on');
-            }
-        });
-    }
+  });
 }
 
+function matrixPostRequest(url, data, callback, context) {
+  $.ajax({
+    url: url,
+    method: 'POST',
+    data: data,
+  }).done(function(msg) {
+    if (callback) {
+      callback(context);
+    }
+  });
+}
+
+function reset() {
+  matrixRequest('/reset', function() {
+    $('.led').removeClass('on');
+  });
+}
+
+function allOn() {
+    matrixRequest('/allOn', function() {
+      $('.led').addClass('on');
+    });
+}
+
+function allOff() {
+    matrixRequest('/allOff', function() {
+      $('.led').removeClass('on');
+    });
+}
+
+function toggleLED() {
+  var led = $(this);
+  var coords = [led.data('x') + ',' + led.data('y')];
+  if ($(this).hasClass('on')) {
+    matrixPostRequest('/clearPixel', {coords:coords}, function() {
+      led.removeClass('on');
+    });
+  } else {
+    matrixPostRequest('/setPixel', {coords:coords}, function() {
+      led.addClass('on');
+    });
+  }
+}
+
+function toggleLEDs(leds) {
+  var leds_on = leds.filter(function(){ return $(this).hasClass('on') });
+  var leds_off = leds.filter(function(){ return !$(this).hasClass('on') });
+  if (leds_on.length) {
+    var coords = leds_on.map(function(){ return $(this).data('x') + ',' + $(this).data('y') }).toArray();
+    matrixPostRequest('/clearPixel', {coords:coords}, function() {
+      leds_on.removeClass('on');
+    });
+  }
+  if (leds_off.length) {
+    var coords = leds_off.map(function(){ return $(this).data('x') + ',' + $(this).data('y') }).toArray();
+    matrixPostRequest('/setPixel', {coords:coords}, function() {
+      leds_off.addClass('on');
+    });
+  }
+}
+
+function listLEDs(leds) {
+  return leds.map(function(){ return $(this).attr('id') + '[' + ($(this).hasClass('on') ? 'on' : 'off') + ']' }).toArray().join(', ');
+}
+
+function toggleColumn() {
+  var x = $(this).data('column');
+  leds = $('.led[data-x=' + x + ']');
+  toggleLEDs(leds);
+}
+
+function toggleRow() {
+  var y = $(this).data('row');
+  leds = $('.led[data-y=' + y + ']');
+  toggleLEDs(leds);
+}
+
+function toggleReversed() {
+  var isReversed = $(this).is(':checked');
+  matrixRequest('/setReversed/' + (isReversed ? 1 : 0), function() {
+    location.reload(true); // too lazy to write ajax refresh right now!
+  });
+}
+
+function setCurrent() {
+  var newCurrent = parseInt($(this).val()) || 1;
+  var current = Math.min(Math.max(newCurrent, 0), 30);
+  $(this).val(current);
+  matrixRequest('/setCurrent/' + current);
+}
+
+function hiSignal() {
+  var signal = $(this).data('signal');
+  var leds = $('.led').filter(function(){ return $(this).data('anode') == signal });
+  toggleLEDs(leds);
+}
+
+function loSignal(pin) {
+  var signal = $(this).data('signal');
+  var leds = $('.led').filter(function(){ return $(this).data('cathode') == signal });
+  toggleLEDs(leds);
+}
+
+function ledAt(x, y) {
+  return $('.led[id="led_' + x + '_' + y + '"]');
+}
+
+$(document).ready(function() {
+  // Annotate LEDs with connection information for control by signals later
+  $(chip).each(function(i, item){
+    $(item.anode_leds).each(function(i, anode_led) {
+      ledAt(anode_led[0], anode_led[1]).data('anode', item.label);
+    });
+    $(item.cathode_leds).each(function(i, cathode_led) {
+      ledAt(cathode_led[0], cathode_led[1]).data('cathode', item.label);
+    });
+  });
+  // Attach handlers
+  $('.led_col').on('click', toggleColumn);
+  $('.led_row').on('click', toggleRow);
+  $('.led').on('click', toggleLED);
+  $('input[name="reversed"]').on('change', toggleReversed);
+  $('#current').on('change', setCurrent);
+  $('.clickable.lo').on('click', loSignal);
+  $('.clickable.hi').on('click', hiSignal);
+});

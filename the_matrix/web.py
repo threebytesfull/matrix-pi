@@ -94,19 +94,15 @@ def allOn():
 
 @app.route('/setPixel', methods=['POST'])
 def setPixel():
-    coords = [int(i) for i in request.form['coords'].split(',')]
-    while coords:
-        x, y = coords[:2]
-        coords = coords[2:]
+    for coords in request.form.getlist('coords[]'):
+        x, y = [int(i) for i in coords.split(',')]
         onOffFrame.setPixel(x, y)
     return updateFrame(0)
 
 @app.route('/clearPixel', methods=['POST'])
 def clearPixel():
-    coords = [int(i) for i in request.form['coords'].split(',')]
-    while coords:
-        x, y = coords[:2]
-        coords = coords[2:]
+    for coords in request.form.getlist('coords[]'):
+        x, y = [int(i) for i in coords.split(',')]
         onOffFrame.setPixel(x, y, 0)
     return updateFrame(0)
 
