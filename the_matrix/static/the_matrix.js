@@ -1,35 +1,33 @@
 function matrixRequest(url, callback, context) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url);
+  $.ajax({
+    url: url,
+    method: 'GET',
+  }).done(function(msg) {
     if (callback) {
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                callback(context);
-            }
-        };
+      callback(context);
     }
-    xhr.send(null);
+  });
 }
 
 function matrixPostRequest(url, data, callback, context) {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
+  // encode data manually - need to find how to recognise param[] in Flask
+  var dataKeys = Object.keys(data);
+  var formFields = [];
+  for (var i=0; i<dataKeys.length; i++) {
+    var value = data[dataKeys[i]];
+    if (typeof(value) == 'string') { value = [value]; }
+    formFields.push(dataKeys[i] + '=' + value.join(','));
+  }
+  $.ajax({
+    url: url,
+    method: 'POST',
+    processData: false,
+    data: formFields.join('&'),
+  }).done(function(msg) {
     if (callback) {
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == 4 && xhr.status == 200) {
-                callback(context);
-            }
-        }
+      callback(context);
     }
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    dataKeys = Object.keys(data);
-    var formFields = [];
-    for (var i=0; i<dataKeys.length; i++) {
-        value = data[dataKeys[i]];
-        if (typeof(value) == 'string') { value = [value]; }
-        formFields.push(dataKeys[i] + '=' + value.join(','));
-    }
-    xhr.send(formFields.join('&'));
+  });
 }
 
 function reset() {
