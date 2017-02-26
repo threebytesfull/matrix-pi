@@ -1,5 +1,6 @@
 import math, time
 from .layout import Layout
+from .detect import detect
 
 try:
     from smbus import SMBus
@@ -33,8 +34,11 @@ class TheMatrix():
         status          = 0x0f
         open_led        = 0x20
 
-    def __init__(self, address=0x30, bus_number=1):
+    def __init__(self, address=None, bus_number=1):
         """Create TheMatrix object with specified I2C address and bus number"""
+        if address == None:
+            address = detect()[0]
+
         self._address = address
         self._bus = SMBus(bus_number)
 

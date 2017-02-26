@@ -1,10 +1,9 @@
 from __future__ import print_function
 
 from .the_matrix import TheMatrix
+from .detect import detect
 
 import getopt, re, sys
-
-DEFAULT_ADDRESS = 0x30
 
 # physical wiring
 cs_pairs = [(cathode, anode) for cathode in range(12) for anode in [a for a in range(12) if a != cathode][:10]]
@@ -93,7 +92,7 @@ def usage():
 def main(args):
     global matrix
 
-    addresses = [DEFAULT_ADDRESS]
+    addresses = []
 
     try:
         opts, args = getopt.getopt(args, "hlpa:")
@@ -117,6 +116,9 @@ def main(args):
 
     if len(opts)>0 and len(args)==0:
         sys.exit(0)
+
+    if len(addresses) == 0:
+        addresses = detect()
 
     matrix = [TheMatrix(address) for address in addresses]
 

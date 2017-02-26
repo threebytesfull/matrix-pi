@@ -1,5 +1,6 @@
 class SMBus(object):
     """Fake SMBus for debugging purposes"""
+    is_fake = True
 
     def __init__(self, bus_number=1):
         print("BUS:INIT bus=%d" % bus_number)
