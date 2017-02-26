@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-from .the_matrix import TheMatrix
+from .the_matrix import TheMatrix, DEFAULT_CURRENT_SOURCE_MA
 from .pixel_font import *
 from .detect import detect
 
@@ -47,7 +47,7 @@ def main(args):
         matrix.display(0)
         matrix.reset()
         matrix.selectMemoryConfig(1)
-        matrix.setCurrentSource(1)
+        matrix.setCurrentSource(DEFAULT_CURRENT_SOURCE_MA)
         blinkPWMFrame = TheMatrix.BlinkPWMFrame()
         matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
         matrix.writeOnOffFrame(0, frame)
