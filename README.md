@@ -220,5 +220,15 @@ and visit your Raspberry Pi's IP address or hostname on port 5000 in your
 browser. The application lets you control individual LEDS, rows and columns of
 them together and vary the LED current.
 
-The web interface currently only works for a single board, so it auto-detects
-boards and picks the one with the lowest address.
+The web interface auto-detects the connected boards and displays a separate
+matrix input for each one. You can control indvidual LEDs, whole rows and whole
+columns on each board.
+
+There's also a graphical depiction of the AS1130 chip which you can use to
+toggle LEDs based on their connection to the chip itself. This may be useful
+when debugging soldering problems - experimenting with the high and low toggles
+for each pin will let you track down exactly which pins have got bad joints, if
+any, or if the problem instead lies with the LEDs.
+
+If toggling a given pin makes any difference at all, the connection on the chip
+is probably okay. :)
