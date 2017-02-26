@@ -13,24 +13,36 @@
             ];
             var height = {{ height }};
             var width = {{ width }};
+            var addresses = [{{ addresses | join(', ') }}];
+            var isReversed = {
+                {% for k in reversed.keys() %}
+                {{k}}: {{ 'true' if reversed[k] else 'false' }}{{',' if not loop.last}}
+                {% endfor %}
+            };
+            var resetCurrents = {
+                {% for k in resetCurrents.keys() %}
+                {{k}}: {{ resetCurrents[k] }}{{',' if not loop.last}}
+                {% endfor %}
+            };
         </script>
         <div id="matrix_display">
+            {% for address in addresses %}
             <table class="led_table">
                 <thead>
                     <tr>
                         <th></th>
                         {% for x in range(width) %}
-                        <th class="clickable led_col" data-column="{{x}}">{{ x }}</th>
+                        <th class="clickable led_col" data-column="{{x}}" data-address="{{address}}">{{ x }}</th>
                         {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
                     {% for y in range(height) %}
                         <tr>
-                            <th class="clickable led_row" data-row="{{y}}">{{ y }}</th>
+                            <th class="clickable led_row" data-row="{{y}}" data-address="{{address}}">{{ y }}</th>
                             {% for x in range(width) %}
                                 {% set led_id = "led_%d_%d" % (x, y) %}
-                                <td class="clickable led{{' on' if pixels[y][x]}}" id="{{ led_id }}" data-x="{{x}}" data-y="{{y}}">&nbsp;</td>
+                                <td class="clickable led{{' on' if pixels[address][y][x]}}" id="{{ led_id }}" data-x="{{x}}" data-y="{{y}}" data-address="{{address}}">&nbsp;</td>
                             {% endfor %}
                         </tr>
                     {% endfor %}
@@ -38,14 +50,15 @@
                 <tfoot>
                     <tr>
                         <td>&nbsp;</td>
-                        <td colspan=2" align="center"><button id="reset" onclick="reset();">Reset</button></td>
-                        <td colspan="2" align="center"><button id="allOff" onclick="allOff();">All Off</button></td>
-                        <td colspan="2" align="center"><button id="allOn" onclick="allOn();">All On</button></td>
-                        <td colspan="4" align="center">Current:&nbsp;<input type="text" length="2" size="2" id="current" value="{{ current }}">&nbsp;mA</td>
-                        <td colspan="4" align="Center"><label for="reversed">Reversed:&nbsp;</label><input type="checkbox" name="reversed" {{ 'checked="checked"' if reversed }}></td>
+                        <td colspan=2" align="center"><button class="reset" data-address="{{address}}">Reset</button></td>
+                        <td colspan="2" align="center"><button class="allOff" data-address="{{address}}">All Off</button></td>
+                        <td colspan="2" align="center"><button class="allOn" data-address="{{address}}">All On</button></td>
+                        <td colspan="4" align="center">Current:&nbsp;<input type="text" length="2" size="2" class="current" value="{{ current[address] }}" data-address="{{address}}">&nbsp;mA</td>
+                        <td colspan="4" align="Center"><label for="reversed">Reversed:&nbsp;</label><input type="checkbox" class="reversed"{{ ' checked="checked"' if reversed[address] }} data-address="{{address}}"></td>
                     </tr>
                 </tfoot>
             </table>
+            {% endfor %}
         </div>
         <div id="chip">
             <table class="chip">

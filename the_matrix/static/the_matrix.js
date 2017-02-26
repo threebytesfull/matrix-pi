@@ -1,14 +1,3 @@
-function matrixRequest(url, callback, context) {
-  $.ajax({
-    url: url,
-    method: 'GET',
-  }).done(function(msg) {
-    if (callback) {
-      callback(context);
-    }
-  });
-}
-
 function matrixPostRequest(url, data, callback, context) {
   $.ajax({
     url: url,
@@ -22,73 +11,77 @@ function matrixPostRequest(url, data, callback, context) {
 }
 
 function reset() {
-  matrixRequest('/reset', function() {
-    $('.led').removeClass('on');
+  var address = $(this).data('address');
+  matrixPostRequest('/reset', {address:address}, function() {
+    $('.led[data-address=' + address + ']').removeClass('on');
+    $('input.current[data-address=' + address + ']').val(resetCurrents[address]);
   });
 }
 
 function allOn() {
-    matrixRequest('/allOn', function() {
-      $('.led').addClass('on');
-    });
+  var address = $(this).data('address');
+  matrixPostRequest('/allOn', {address:address}, function() {
+    $('.led[data-address=' + address + ']').addClass('on');
+  });
 }
 
 function allOff() {
-    matrixRequest('/allOff', function() {
-      $('.led').removeClass('on');
-    });
+  var address = $(this).data('address');
+  matrixPostRequest('/allOff', {address:address}, function() {
+    $('.led[data-address=' + address + ']').removeClass('on');
+  });
 }
 
 function toggleLED() {
   var led = $(this);
   var coords = [led.data('x') + ',' + led.data('y')];
+  var address = led.data('address');
   if ($(this).hasClass('on')) {
-    matrixPostRequest('/clearPixel', {coords:coords}, function() {
+    matrixPostRequest('/clearPixel', {coords:coords, address:address}, function() {
       led.removeClass('on');
     });
   } else {
-    matrixPostRequest('/setPixel', {coords:coords}, function() {
+    matrixPostRequest('/setPixel', {coords:coords, address:address}, function() {
       led.addClass('on');
     });
   }
 }
 
-function toggleLEDs(leds) {
+function toggleLEDs(address, leds) {
   var leds_on = leds.filter(function(){ return $(this).hasClass('on') });
   var leds_off = leds.filter(function(){ return !$(this).hasClass('on') });
   if (leds_on.length) {
     var coords = leds_on.map(function(){ return $(this).data('x') + ',' + $(this).data('y') }).toArray();
-    matrixPostRequest('/clearPixel', {coords:coords}, function() {
+    matrixPostRequest('/clearPixel', {coords:coords, address:address}, function() {
       leds_on.removeClass('on');
     });
   }
   if (leds_off.length) {
     var coords = leds_off.map(function(){ return $(this).data('x') + ',' + $(this).data('y') }).toArray();
-    matrixPostRequest('/setPixel', {coords:coords}, function() {
+    matrixPostRequest('/setPixel', {coords:coords, address:address}, function() {
       leds_off.addClass('on');
     });
   }
 }
 
-function listLEDs(leds) {
-  return leds.map(function(){ return $(this).attr('id') + '[' + ($(this).hasClass('on') ? 'on' : 'off') + ']' }).toArray().join(', ');
-}
-
 function toggleColumn() {
   var x = $(this).data('column');
-  leds = $('.led[data-x=' + x + ']');
-  toggleLEDs(leds);
+  var address = $(this).data('address');
+  var leds = $('.led[data-address='+address+'][data-x=' + x + ']');
+  toggleLEDs(address, leds);
 }
 
 function toggleRow() {
   var y = $(this).data('row');
-  leds = $('.led[data-y=' + y + ']');
-  toggleLEDs(leds);
+  var address = $(this).data('address');
+  var leds = $('.led[data-address='+address+'][data-y=' + y + ']');
+  toggleLEDs(address, leds);
 }
 
 function toggleReversed() {
   var isReversed = $(this).is(':checked');
-  matrixRequest('/setReversed/' + (isReversed ? 1 : 0), function() {
+  var address = $(this).data('address');
+  matrixPostRequest('/setReversed', {address:address, reversed:isReversed}, function() {
     location.reload(true); // too lazy to write ajax refresh right now!
   });
 }
@@ -96,20 +89,36 @@ function toggleReversed() {
 function setCurrent() {
   var newCurrent = parseInt($(this).val()) || 1;
   var current = Math.min(Math.max(newCurrent, 0), 30);
+  var address = $(this).data('address');
   $(this).val(current);
-  matrixRequest('/setCurrent/' + current);
+  matrixPostRequest('/setCurrent', {address:address, current:current});
+}
+
+function toggleSignal(address, signal, side) {
+  var leds = $('.led[data-address=' + address + ']').filter(function(){ return $(this).data(side) == signal });
+  toggleLEDs(address, leds);
 }
 
 function hiSignal() {
   var signal = $(this).data('signal');
-  var leds = $('.led').filter(function(){ return $(this).data('anode') == signal });
-  toggleLEDs(leds);
+  $(addresses).each(function(i, address) {
+    if (isReversed[address]) {
+      toggleSignal(address, signal, 'cathode');
+    } else {
+      toggleSignal(address, signal, 'anode');
+    }
+  });
 }
 
 function loSignal(pin) {
   var signal = $(this).data('signal');
-  var leds = $('.led').filter(function(){ return $(this).data('cathode') == signal });
-  toggleLEDs(leds);
+  $(addresses).each(function(i, address) {
+    if (isReversed[address]) {
+      toggleSignal(address, signal, 'anode');
+    } else {
+      toggleSignal(address, signal, 'cathode');
+    }
+  });
 }
 
 function ledAt(x, y) {
@@ -130,8 +139,11 @@ $(document).ready(function() {
   $('.led_col').on('click', toggleColumn);
   $('.led_row').on('click', toggleRow);
   $('.led').on('click', toggleLED);
-  $('input[name="reversed"]').on('change', toggleReversed);
-  $('#current').on('change', setCurrent);
+  $('input.reversed').on('change', toggleReversed);
+  $('input.current').on('change', setCurrent);
   $('.clickable.lo').on('click', loSignal);
   $('.clickable.hi').on('click', hiSignal);
+  $('button.reset').on('click', reset);
+  $('button.allOn').on('click', allOn);
+  $('button.allOff').on('click', allOff);
 });

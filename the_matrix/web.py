@@ -10,6 +10,12 @@ app = Flask(__name__)
 addresses = detect()
 matrices = dict((address, TheMatrix(address)) for address in addresses)
 
+blinkPWMFrames = dict((address, None) for address in addresses)
+onOffFrames = dict((address, None) for address in addresses)
+isReversed = dict((address, False) for address in addresses)
+ledCurrents = dict((address, DEFAULT_CURRENT_SOURCE_MA) for address in addresses)
+resetCurrents = dict((address, DEFAULT_CURRENT_SOURCE_MA) for address in addresses)
+
 cs_pairs = [(anode, cathode) for cathode in range(12) for anode in [a for a in range(12) if a != cathode][:10]]
 chip = [{'label': label} for label in 'GND CS6 VDD CS7 CS8 CS9 GND CS11 CS10 VDD IRQ SYNC RSTN GND SCL SDA ADDR VDD VDD CS5 CS4 GND CS2 CS3 CS0 VDD CS1 GND'.split()]
 for pin in chip:
@@ -24,45 +30,48 @@ for pin in chip:
         cathode_led_indices = [i for i in range(len(cs_pairs)) if cs_pairs[i][1] == signal]
         pin['cathode_leds'] = [[int(i/5), i%5] for i in cathode_led_indices]
 
-def updateFrame(frameNumber):
-    for address in matrices.keys():
-        matrix = matrices[address]
-        matrix.writeOnOffFrame(frameNumber, onOffFrame)
-
+def updateFrame(address, frameNumber):
+    matrices[address].writeOnOffFrame(frameNumber, onOffFrames[address])
     return ""
 
 @app.route('/')
 def main_route():
-    global ledCurrent
-    global onOffFrame
-    global isReversed
-    pixels = [[onOffFrame.getPixel(x, y) for x in range(24)] for y in range(5)]
-    return render_template('the_matrix.html', width=24, height=5, current=ledCurrent, pixels=pixels, chip=chip, reversed=isReversed)
+    pixels = dict((address, [[onOffFrames[address].getPixel(x, y) for x in range(24)] for y in range(5)]) for address in matrices.keys())
+    return render_template(
+        'the_matrix.html',
+        width=24,
+        height=5,
+        current=ledCurrents,
+        resetCurrents=resetCurrents,
+        pixels=pixels,
+        chip=chip,
+        reversed=isReversed,
+        addresses=sorted(matrices.keys())
+    )
 
-@app.route('/reset')
+@app.route('/reset', methods=['POST'])
 def reset():
-    global blinkPWMFrame
-    global onOffFrame
-    global ledCurrent
-    global isReversed
+    try:
+        addresses = [int(request.form['address'])]
+    except:
+        addresses = matrices.keys()
 
-    isReversed = False
-
-    for address in matrices.keys():
+    for address in addresses:
+        isReversed[address] = False
         matrix = matrices[address]
 
         matrix.reset()
         matrix.selectMemoryConfig(1)
 
-        ledCurrent = DEFAULT_CURRENT_SOURCE_MA
-        matrix.setCurrentSource(ledCurrent)
+        ledCurrents[address] = DEFAULT_CURRENT_SOURCE_MA
+        matrix.setCurrentSource(ledCurrents[address])
 
-        layout = Layout(reversed=isReversed)
-        blinkPWMFrame = TheMatrix.BlinkPWMFrame(layout=layout)
-        matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
+        layout = Layout(reversed=isReversed[address])
+        blinkPWMFrames[address] = TheMatrix.BlinkPWMFrame(layout=layout)
+        matrix.writeBlinkPWMFrame(0, blinkPWMFrames[address])
 
-        onOffFrame = TheMatrix.OnOffFrame(layout=layout)
-        matrix.writeOnOffFrame(0, onOffFrame)
+        onOffFrames[address] = TheMatrix.OnOffFrame(layout=layout)
+        matrix.writeOnOffFrame(0, onOffFrames[address])
 
         matrix.setDisplayOptions()
         matrix.display(1)
@@ -70,77 +79,78 @@ def reset():
 
     return ""
 
-@app.route('/setCurrent/<current>')
-def setCurrent(current):
-    global ledCurrent
-    ledCurrent = int(current)
+@app.route('/setCurrent', methods=['POST'])
+def setCurrent():
+    address = int(request.form['address'])
+    current = int(request.form['current'])
 
-    for address in matrices.keys():
-        matrix = matrices[address]
-        matrix.setCurrentSource(ledCurrent)
+    ledCurrents[address] = current
+
+    matrices[address].setCurrentSource(ledCurrents[address])
 
     return ""
 
-@app.route('/allOff')
+@app.route('/allOff', methods=['POST'])
 def allOff():
-    global blinkPWMFrame
-    global onOffFrame
+    address = int(request.form['address'])
 
-    blinkPWMFrame = TheMatrix.BlinkPWMFrame()
-    onOffFrame = TheMatrix.OnOffFrame(0)
+    blinkPWMFrames[address] = TheMatrix.BlinkPWMFrame()
+    onOffFrames[address] = TheMatrix.OnOffFrame(0)
 
-    for address in matrices.keys():
-        matrix = matrices[address]
-        matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
-        matrix.writeOnOffFrame(0, onOffFrame)
+    matrix = matrices[address]
+    matrix.writeBlinkPWMFrame(0, blinkPWMFrames[address])
+    matrix.writeOnOffFrame(0, onOffFrames[address])
 
     return ""
 
-@app.route('/allOn')
+@app.route('/allOn', methods=['POST'])
 def allOn():
-    global blinkPWMFrame
-    global onOffFrame
+    address = int(request.form['address'])
 
-    blinkPWMFrame = TheMatrix.BlinkPWMFrame()
-    onOffFrame = TheMatrix.OnOffFrame(1)
+    blinkPWMFrames[address] = TheMatrix.BlinkPWMFrame()
+    onOffFrames[address] = TheMatrix.OnOffFrame(1)
 
-    for address in matrices.keys():
-        matrix = matrices[address]
-        matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
-        matrix.writeOnOffFrame(0, onOffFrame)
+    matrix = matrices[address]
+    matrix.writeBlinkPWMFrame(0, blinkPWMFrames[address])
+    matrix.writeOnOffFrame(0, onOffFrames[address])
 
     return ""
 
 @app.route('/setPixel', methods=['POST'])
 def setPixel():
+    address = int(request.form['address'])
+
     for coords in request.form.getlist('coords[]'):
         x, y = [int(i) for i in coords.split(',')]
-        onOffFrame.setPixel(x, y)
-    return updateFrame(0)
+        onOffFrames[address].setPixel(x, y)
+
+    return updateFrame(address, 0)
 
 @app.route('/clearPixel', methods=['POST'])
 def clearPixel():
+    address = int(request.form['address'])
+
     for coords in request.form.getlist('coords[]'):
         x, y = [int(i) for i in coords.split(',')]
-        onOffFrame.setPixel(x, y, 0)
-    return updateFrame(0)
+        onOffFrames[address].setPixel(x, y, 0)
 
-@app.route('/setReversed/<reversedFlag>')
-def setReversed(reversedFlag):
-    global isReversed
-    global blinkPWMFrame
-    global onOffFrame
-    newReversed = reversedFlag == '1'
-    if newReversed != isReversed:
-        isReversed = newReversed
+    return updateFrame(address, 0)
+
+@app.route('/setReversed', methods=['POST'])
+def setReversed():
+    address = int(request.form['address'])
+    reversedFlag = request.form['reversed']
+
+    newReversed = reversedFlag == 'true'
+    if newReversed != isReversed[address]:
+        isReversed[address] = newReversed
         newLayout = Layout(reversed=newReversed)
-        blinkPWMFrame.layout = newLayout
-        onOffFrame.layout = newLayout
+        blinkPWMFrames[address].layout = newLayout
+        onOffFrames[address].layout = newLayout
 
-        for address in matrices.keys():
-            matrix = matrices[address]
-            matrix.writeBlinkPWMFrame(0, blinkPWMFrame)
-            matrix.writeOnOffFrame(0, onOffFrame)
+        matrix = matrices[address]
+        matrix.writeBlinkPWMFrame(0, blinkPWMFrames[address])
+        matrix.writeOnOffFrame(0, onOffFrames[address])
 
     return ""
 
