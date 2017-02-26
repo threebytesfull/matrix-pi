@@ -13,6 +13,7 @@ setup(
     packages=find_packages(exclude=['tests', 'docs']),
     entry_points = {
         'console_scripts': [
+            'the_matrix_identify=the_matrix.identify:command_line',
             'the_matrix_leds=the_matrix.leds:command_line',
             'the_matrix_scrolltext=the_matrix.scrolltext:command_line',
             'the_matrix_web=the_matrix.web:main',
