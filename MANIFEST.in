@@ -1,1 +1,2 @@
 recursive-include the_matrix/templates *
+recursive-include the_matrix/static *

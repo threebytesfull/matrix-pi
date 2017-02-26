@@ -1,0 +1,32 @@
+body {
+    background-color: #444;
+    color: white;
+    font-family: Helvetica, Arial, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+div#matrix_display {
+  float: left;
+}
+
+div#chip {
+  float: right;
+}
+
+.led_table td, .led_table th { width: 2em; height: 2em }
+
+.clickable { cursor: pointer; }
+td.led { background-color: black; }
+.led.on { background-color: red; }
+table.chip { border-spacing: 0; border-collapse: separate; }
+.chip { text-align: center; }
+.chip td { width: 2em; height: 2em; }
+.chip .label { width: 3em; background-color: black; border: 2px solid #444; }
+.chip .pin { background-color: #eee; color: black; }
+.chip .body { width: 9em; background-color: black; }
+.clickable.lo:hover { background-color: #600; }
+.clickable.hi:hover { background-color: #060; }
+
