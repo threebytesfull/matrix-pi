@@ -99,9 +99,14 @@ script with no parameters:
     # detect and identify TheMatrix boards
     the_matrix_identify
 
-then each detected board will display its own address. If you want to identify
-a particular board or boards, you can specify their addresses on the command
-line:
+then each detected board will display its own address. If you need to use an
+I2C bus other than the default bus number 1, specify it on the command line:
+
+    # detect and identify TheMatrix boards on bus 2
+    the_matrix_identify -b 2
+
+If you want to identify a particular board or boards, you can specify their
+addresses on the command line:
 
     # detect one specific board
     the_matrix_identify -a 0x30
@@ -121,6 +126,9 @@ pin:
 
     # turn on three LEDs
     the_matrix_leds 7 9 b0
+
+    # turn on three LEDs (TheMatrix on bus 2)
+    the_matrix_leds -b 2 7 9 b0
 
     # turn on top left corner and top right corner LEDs
     the_matrix_leds 0,0 23,0
@@ -206,6 +214,12 @@ expected order, you can use the `-a` option:
     # scroll message on two unsorted boards
     the_matrix_scrolltext -a 0x34,0x30 'custom order'
 
+If your board is on an I2C bus other than the default bus number 1, you can
+specify that on the command line:
+
+    # scroll message on one or more TheMatrix boards on bus 2:
+    the_matrix_scrolltext -b 2 Hello on bus two...
+
 ## Web Interface - [the_matrix_web](./the_matrix/web.py)
 
 This is a very basic web interface for controlling TheMatrix. It runs on the
@@ -223,6 +237,11 @@ them together and vary the LED current.
 The web interface auto-detects the connected boards and displays a separate
 matrix input for each one. You can control indvidual LEDs, whole rows and whole
 columns on each board.
+
+It looks at I2C bus number 1 by default but you can specifiy an alternative bus
+number on the command line:
+
+    the_matrix_web -b 2
 
 There's also a graphical depiction of the AS1130 chip which you can use to
 toggle LEDs based on their connection to the chip itself. This may be useful
