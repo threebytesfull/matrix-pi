@@ -87,15 +87,16 @@ class LEDs(object):
             m.displayPictureFrame(0)
 
 def usage():
-    print("Usage: {} [-a <address>[,<address>...]] [-h] [-l] [-p] <led_numbers>".format(sys.argv[0]), file=sys.stderr)
+    print("Usage: {} [-a <address>[,<address>...]] [-b <bus_number>] [-h] [-l] [-p] <led_numbers>".format(sys.argv[0]), file=sys.stderr)
 
 def main(args):
     global matrix
 
     addresses = []
+    bus_number = 1
 
     try:
-        opts, args = getopt.getopt(args, "hlpa:")
+        opts, args = getopt.getopt(args, "hlpa:b:")
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -107,6 +108,8 @@ def main(args):
         if opt == '-h':
             usage()
             sys.exit()
+        elif opt == '-b':
+            bus_number = int(arg)
         elif opt == '-l':
             LEDs.logical_layout()
         elif opt == '-p':
@@ -120,7 +123,7 @@ def main(args):
     if len(addresses) == 0:
         addresses = detect()
 
-    matrix = [TheMatrix(address) for address in addresses]
+    matrix = [TheMatrix(address, bus_number=bus_number) for address in addresses]
 
     LEDs.display_leds(args)
 

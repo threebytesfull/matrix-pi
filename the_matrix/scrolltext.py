@@ -58,15 +58,16 @@ class ScrollText(object):
             m.displayMovie(frame=i)
 
 def usage():
-    print("Usage: {} [-a <address>[,<address>...]] <text>".format(sys.argv[0]), file=sys.stderr)
+    print("Usage: {} [-a <address>[,<address>...]] [-b <bus_number>] <text>".format(sys.argv[0]), file=sys.stderr)
 
 def main(args):
     global matrix
 
     addresses = []
+    bus_number = 1
 
     try:
-        opts, args = getopt.getopt(args, 'ha:')
+        opts, args = getopt.getopt(args, 'ha:b:')
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -77,6 +78,8 @@ def main(args):
             sys.exit()
         if opt == '-a':
             addresses = [int(address, 16) for address in arg.split(',')]
+        if opt == '-b':
+            bus_number = int(arg)
 
     if len(args) < 1:
         usage()
@@ -85,7 +88,7 @@ def main(args):
     if len(addresses) == 0:
         addresses = detect()
 
-    matrix = [TheMatrix(address) for address in addresses]
+    matrix = [TheMatrix(address, bus_number=bus_number) for address in addresses]
 
     ScrollText.display_banner(args)
 

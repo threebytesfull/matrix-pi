@@ -1,14 +1,36 @@
+from __future__ import print_function
+
 from flask import Flask, render_template, request
 from .the_matrix import TheMatrix, DEFAULT_CURRENT_SOURCE_MA
 from .layout import Layout
 from .detect import detect
 
-import re
+import getopt, re, sys
 
+bus_number = 1
 app = Flask(__name__)
 
+def usage():
+    print("Usage: {} [-b <bus_number>]".format(sys.argv[0]), file=sys.stderr)
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hb:")
+except getopt.GetoptError:
+    usage()
+    sys.exit(2)
+
+if len(args+opts) == 0:
+    usage()
+
+for opt, arg in opts:
+    if opt == '-h':
+        usage()
+        sys.exit()
+    elif opt == '-b':
+        bus_number = int(arg)
+
 addresses = detect()
-matrices = dict((address, TheMatrix(address)) for address in addresses)
+matrices = dict((address, TheMatrix(address, bus_number=bus_number)) for address in addresses)
 
 blinkPWMFrames = dict((address, None) for address in addresses)
 onOffFrames = dict((address, None) for address in addresses)

@@ -7,13 +7,14 @@ from .detect import detect
 import getopt, sys
 
 def usage():
-    print("Usage: {} [-a <address>[,<address>...]]".format(sys.argv[0]), file=sys.stderr)
+    print("Usage: {} [-a <address>[,<address>...]] [-b <bus_number>]".format(sys.argv[0]), file=sys.stderr)
 
 def main(args):
     addresses = []
+    bus_number = 1
 
     try:
-        opts, args = getopt.getopt(args, 'ha:')
+        opts, args = getopt.getopt(args, 'ha:b:')
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -24,6 +25,8 @@ def main(args):
             sys.exit()
         if opt == '-a':
             addresses = [int(address, 16) for address in arg.split(',')]
+        if opt == '-b':
+            bus_number = int(arg)
 
     if len(addresses) == 0:
         addresses = detect()
@@ -31,7 +34,7 @@ def main(args):
     font = PixelFont5Narrow()
 
     for address in addresses:
-        matrix = TheMatrix(address)
+        matrix = TheMatrix(address, bus_number=bus_number)
         pixel_data = font.string('0x%02x' % address)
         if len(pixel_data[0]) % 24 != 0:
             for y in range(5):
