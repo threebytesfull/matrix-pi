@@ -86,7 +86,7 @@ def main(args):
         sys.exit(2)
 
     if len(addresses) == 0:
-        addresses = detect()
+        addresses = detect(bus_number)
 
     matrix = [TheMatrix(address, bus_number=bus_number) for address in addresses]
 

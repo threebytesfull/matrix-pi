@@ -29,7 +29,7 @@ for opt, arg in opts:
     elif opt == '-b':
         bus_number = int(arg)
 
-addresses = detect()
+addresses = detect(bus_number)
 matrices = dict((address, TheMatrix(address, bus_number=bus_number)) for address in addresses)
 
 blinkPWMFrames = dict((address, None) for address in addresses)

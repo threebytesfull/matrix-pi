@@ -29,7 +29,7 @@ def main(args):
             bus_number = int(arg)
 
     if len(addresses) == 0:
-        addresses = detect()
+        addresses = detect(bus_number)
 
     font = PixelFont5Narrow()
 
