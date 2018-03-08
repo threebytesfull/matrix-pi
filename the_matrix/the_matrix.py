@@ -39,7 +39,7 @@ class TheMatrix():
     def __init__(self, address=None, bus_number=1):
         """Create TheMatrix object with specified I2C address and bus number"""
         if address == None:
-            address = detect()[0]
+            address = detect(bus_number)[0]
 
         self._address = address
         self._bus = SMBus(bus_number)
